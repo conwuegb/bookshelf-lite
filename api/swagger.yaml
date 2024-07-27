@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: Bookshelf API
+  description: An API which manages the inventory of books on a bookshelf.
+  version: "1.0"
+servers:
+- url: http://localhost:8080
+paths:
+  /books:
+    get:
+      summary: Get a list of all books on the shelf
+      responses:
+        "200":
+          description: Return a list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+                x-content-type: application/json
+    post:
+      summary: Add a new book
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        "201":
+          description: Book created
+components:
+  schemas:
+    Book:
+      required:
+      - author
+      - isbn
+      - title
+      type: object
+      properties:
+        author:
+          type: string
+        isbn:
+          type: string
+        title:
+          type: string
+      example:
+        author: author
+        isbn: isbn
+        title: title
