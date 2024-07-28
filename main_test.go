@@ -27,9 +27,9 @@ var test_bookshelf []sw.Book = nil
 // Mock the database
 func setupTestDB(baseBooks ...sw.Book) {
 	sw.GetDB = func() *[]sw.Book {
-		if test_bookshelf == nil {
-			test_bookshelf = []sw.Book{}
-		}
+		// Initialize or reset db
+		test_bookshelf = []sw.Book{}
+		// Add books for current test
 		test_bookshelf = append(test_bookshelf, baseBooks...)
 		return &test_bookshelf
 	}
@@ -37,10 +37,7 @@ func setupTestDB(baseBooks ...sw.Book) {
 
 // Helper function to set up the router
 func setupRouter() *mux.Router {
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/books", sw.BooksGet).Methods("GET")
-	router.HandleFunc("/books", sw.BooksPost).Methods("POST")
-	return router
+	return sw.NewRouter()
 }
 
 func TestGetBooks_CleanDB(t *testing.T) {
@@ -112,18 +109,37 @@ func TestCreateBook_DuplicateBook(t *testing.T) {
 	assert.Contains(t, rr.Body.String(), "Addie Larue")
 }
 
-func TestDeleteBook_ByIsbn(t *testing.T) {
+func TestDeleteBookByIsbn_BookExists(t *testing.T) {
 	router := setupRouter()
 
 	setupTestDB(books...)
 
+	// Delete from start edge
 	req, _ := http.NewRequest("DELETE", "/books/9781627792127", nil)
 	rr := httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusNoContent, rr.Code)
-	req, _ = http.NewRequest("GET", "/books/9781627792127", nil)
+	assert.Empty(t, rr.Body)
+
+	// Delete from middle
+	req, _ = http.NewRequest("DELETE", "/books/9781250105714", nil)
 	rr = httptest.NewRecorder()
 	router.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusNoContent, rr.Code)
+	assert.Empty(t, rr.Body)
+}
+
+func TestDeleteBookByIsbn_BookDoesNotExists(t *testing.T) {
+	router := setupRouter()
+
+	setupTestDB(books[1:]...)
+
+	req, _ := http.NewRequest("DELETE", "/books/9781627792127", nil)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
 	assert.Equal(t, http.StatusNotFound, rr.Code)
+	assert.Contains(t, rr.Body.String(), "not found")
 }

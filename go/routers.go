@@ -16,6 +16,7 @@ func NewRouter() *mux.Router {
 	router.HandleFunc("/", Index).Methods("GET")
 	router.HandleFunc("/books", BooksGet).Methods("GET")
 	router.HandleFunc("/books", BooksPost).Methods("POST")
+	router.HandleFunc("/books/{isbn}", BooksDeleteByIsbn).Methods("DELETE")
 
 	return router
 }

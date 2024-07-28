@@ -33,6 +33,22 @@ paths:
       responses:
         "201":
           description: Book created
+        "200":
+          description: Book already existed
+  /books/{isbn}:
+    delete:
+      summary: Delete a book by ISBN
+      parameters:
+      - name: isbn
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Book deleted
 components:
   schemas:
     Book:
