@@ -22,6 +22,9 @@ func getDB() *[]Book {
 	return &bookshelf
 }
 
+// Alias db access func for testing purposes
+var GetDB = getDB
+
 // Handler functions
 func Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, and welcome to your bookshelf!")
@@ -32,7 +35,7 @@ func BooksGet(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	// Fetch books from DB and encode to JSON in response
-	var books *[]Book = getDB()
+	var books *[]Book = GetDB()
 	json.NewEncoder(w).Encode(books)
 }
 
@@ -53,7 +56,7 @@ func BooksPost(w http.ResponseWriter, r *http.Request) {
 
 func createBook(book *Book, w http.ResponseWriter) {
 	// Get DB
-	var db *[]Book = getDB()
+	var db *[]Book = GetDB()
 
 	// Check if book isbn already exists in DB
 	for _, shelfBook := range *db {
